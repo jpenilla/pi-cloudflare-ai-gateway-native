@@ -1,0 +1,45 @@
+{
+  "name": "pi-cloudflare-ai-gateway-native",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Experimental Pi provider for native-format Cloudflare AI Gateway routes",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpenilla/pi-cloudflare-ai-gateway-native.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jpenilla/pi-cloudflare-ai-gateway-native/issues"
+  },
+  "homepage": "https://github.com/jpenilla/pi-cloudflare-ai-gateway-native#readme",
+  "keywords": [
+    "pi",
+    "cloudflare",
+    "ai-gateway"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "npm run typecheck && npm test",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": ">=0.81.1",
+    "@earendil-works/pi-coding-agent": ">=0.81.1"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "^0.81.1",
+    "@earendil-works/pi-coding-agent": "^0.81.1",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  }
+}
