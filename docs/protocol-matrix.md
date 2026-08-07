@@ -9,7 +9,7 @@ Sanitized results from representative live requests and local boundary tests. Th
 - AI Gateway authentication: enabled
 - Third-party billing mode: Unified Billing
 - Provider API keys sent by the extension: none
-- BYOK surfaces (provider-key forwarding): excluded by design
+- Client-supplied BYOK/provider-key forwarding: excluded by design; Cloudflare-side stored keys are not controlled by the extension
 - Prompts: minimal non-sensitive text and a local `read` tool control
 
 No account identifiers, gateway identifiers, credentials, request/response IDs, private paths, raw payloads, or encrypted reasoning values are retained here.
@@ -23,7 +23,7 @@ No account identifiers, gateway identifiers, credentials, request/response IDs, 
 | Google | `gemini-3.1-flash-lite` | provider-native `v1beta` | pass | pass | pass | pass | pending | Current SDK tool schema passed unchanged |
 | DeepSeek | `deepseek-v4-flash` | account REST Chat | pass | pass | pass | partial | pending | Canonical `deepseek/…` ID is applied only to the request |
 | xAI | `grok-4.3` | provider-native Chat | pass | pass | partial | partial | pending | Reasoning and unusual usage totals need further interpretation |
-| Workers AI | Granite Micro; Gemma 4 26B | account REST Chat | pass | pass | n/a | partial | pending | Uses Workers AI billing rather than Unified Billing |
+| Workers AI | Granite Micro; Gemma 4 26B | account REST Chat | pass | pass | n/a | partial | pending | Billing depends on the gateway's Workers AI Billing setting; Unified Billing is also supported by Cloudflare |
 
 Image input, abort behavior, context overflow, and broad model coverage were not tested. They are not required to establish the current transport design.
 

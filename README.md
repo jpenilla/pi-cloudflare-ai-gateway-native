@@ -3,7 +3,7 @@
 An experimental [Pi](https://github.com/earendil-works/pi) extension whose purpose is **full native-format coverage of Cloudflare AI Gateway's Unified Billing catalog**: every Unified Billing-eligible model that maps to a Pi built-in provider is projected into Pi and routed through Cloudflare's provider-native or account REST endpoints using the wire format Pi already speaks.
 
 > [!IMPORTANT]
-> **Unified Billing only.** One Cloudflare token is both the authentication and the billing principal; upstream provider credentials are never accepted or forwarded. BYOK-only surfaces (DeepSeek's provider-native route, Google Vertex, …) are out of scope by design, and first-party `@cf/*` Workers AI models bill through Workers AI rather than Unified Billing. This is a personal research prototype and potential Pi upstream proof of concept—not a production-supported provider. Cloudflare model eligibility varies by account and invocation surface.
+> **Cloudflare token authentication only.** Requests use one Cloudflare token for gateway/account authentication. The extension never accepts or forwards extra client-supplied upstream provider credentials; Cloudflare may resolve credentials through its own stored-key or Unified Billing configuration. First-party `@cf/*` Workers AI billing depends on the gateway's Workers AI Billing setting; this extension does not configure that setting. This is a personal research prototype and potential Pi upstream proof of concept—not a production-supported provider. Cloudflare model eligibility varies by account and invocation surface.
 
 ## What it explores
 
@@ -25,7 +25,7 @@ The extension registers a separate `cloudflare-ai-gateway-native` provider and d
 | Google AI Studio | provider-native `/google-ai-studio/v1beta` | Google Generative AI | Unified Billing | text and tool-result replay |
 | DeepSeek | account REST Chat | Chat Completions | Unified Billing | text, reasoning, tool-result replay |
 | xAI | provider-native `/grok/v1` | Chat Completions or Responses | Unified Billing | `grok-4.3` text and tools |
-| Workers AI | account REST Chat | Chat Completions | Workers AI | text and tools |
+| Workers AI | account REST Chat | Chat Completions | Gateway-configured Workers AI or Unified Billing | text and tools |
 
 Projected models are **route candidates**, not availability guarantees: the target is full catalog coverage, but Cloudflare currently exposes no account-specific model-by-surface discovery contract, and some catalog models behave differently across provider-native endpoints, account REST schemas, and `/ai/run`. See the [sanitized Cloudflare findings](./docs/cloudflare-findings.md).
 
@@ -54,7 +54,7 @@ export CLOUDFLARE_ACCOUNT_ID=...
 export CLOUDFLARE_GATEWAY_ID=...
 ```
 
-The token must have the Cloudflare permissions required by the selected AI Gateway surface (Unified Billing run access for third-party models).
+The token must have the Cloudflare permissions required by the selected AI Gateway surface (including Unified Billing run access for third-party models). Charges are applied to the Cloudflare account's configured billing balance.
 
 Authentication is host-scoped:
 
@@ -66,7 +66,7 @@ Google requires a small SDK boundary workaround: Pi initializes `@google/genai` 
 
 ## Design constraints
 
-- Unified Billing authentication and billing only; no BYOK provider-key forwarding, so provider-key-required surfaces are excluded rather than hacked around.
+- Cloudflare token authentication only; no pass-through of extra client-supplied provider credentials. Cloudflare-side stored-key or Unified Billing resolution remains controlled by the gateway/account configuration, and Workers AI billing remains controlled by the gateway's setting.
 - One deterministic transport per projected model.
 - No automatic fallback, `/compat`, or implemented `/ai/run` adapter.
 - No copied provider implementations, unsupported internal imports, or global `fetch` patches.

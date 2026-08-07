@@ -6,7 +6,7 @@ This document describes the experimental `cloudflare-ai-gateway-native` Pi exten
 
 The extension's purpose is **full native-format coverage of Cloudflare AI Gateway's Unified Billing catalog within Pi**: every Unified Billing-eligible model that maps to a Pi built-in provider is projected and routed with the Pi source provider's wire format, model metadata, tool behavior, and reasoning replay. It uses deterministic per-model transports: a failed request is returned to the user and is never retried through another Cloudflare surface.
 
-Billing is **Unified Billing only**: one Cloudflare token is both the authentication and the billing principal, and upstream provider credentials are never accepted or forwarded, so BYOK-only surfaces are excluded by design. The sole carve-out is first-party `@cf/*` Workers AI models, which bill through Workers AI instead.
+Authentication uses one Cloudflare token for the gateway/account request. The extension never accepts or forwards extra client-supplied upstream provider credentials; Cloudflare may resolve credentials through its own stored-key or Unified Billing configuration. First-party `@cf/*` Workers AI billing depends on the gateway's Workers AI Billing setting; this extension does not configure that setting.
 
 ## Provider and catalog
 
@@ -29,13 +29,13 @@ Catalog entries are route candidates. Cloudflare account/model eligibility is no
 | `deepseek` | `api.cloudflare.com/.../ai/v1/chat/completions` | OpenAI Chat Completions | `deepseek/<source-id>` | Unified Billing |
 | `xai` Chat models | `gateway.ai.cloudflare.com/.../grok/v1/chat/completions` | OpenAI Chat Completions | unchanged | Unified Billing |
 | `xai` Responses models | `gateway.ai.cloudflare.com/.../grok/v1/responses` | OpenAI Responses | unchanged | Unified Billing |
-| `cloudflare-workers-ai` | `api.cloudflare.com/.../ai/v1/chat/completions` | OpenAI Chat Completions | unchanged `@cf/...` | Workers AI |
+| `cloudflare-workers-ai` | `api.cloudflare.com/.../ai/v1/chat/completions` | OpenAI Chat Completions | unchanged `@cf/...` | Gateway-configured Workers AI or Unified Billing |
 
 There is no `/compat`, `/ai/run`, transport retry, REST fallback, model discovery request, or legacy provider alias.
 
 ## Authentication boundary
 
-One Cloudflare API token, account ID, and gateway ID are stored in Pi's native credential store. This is the Unified Billing authentication model: the Cloudflare token is the billing principal, and no upstream provider credential is accepted or forwarded.
+One Cloudflare API token, account ID, and gateway ID are stored in Pi's native credential store. The token authenticates the request; no extra client-supplied upstream provider credential is accepted or forwarded. Cloudflare-side stored-key or Unified Billing resolution is determined by the gateway/account configuration.
 
 Authentication is selected only after the destination host is fixed:
 
