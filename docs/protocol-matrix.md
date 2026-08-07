@@ -5,7 +5,7 @@ Sanitized results from representative live requests and local boundary tests. Th
 ## Test conditions
 
 - Pi: 0.84.x
-- Last validation pass: July 22, 2026
+- Last validation pass: July 22, 2026; re-pass August 7, 2026
 - AI Gateway authentication: enabled
 - Third-party billing mode: Unified Billing
 - Provider API keys sent by the extension: none
