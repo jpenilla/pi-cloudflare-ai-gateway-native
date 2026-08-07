@@ -78,9 +78,10 @@ export function cloudflareGatewayNativeAuth(): ApiKeyAuth {
   return {
     name: "Cloudflare AI Gateway token and route",
     async login(interaction) {
-      const key = await interaction.prompt({ type: "secret", message: "Enter Cloudflare AI Gateway token" });
-      const accountId = await interaction.prompt({ type: "text", message: "Enter Cloudflare account ID" });
-      const gatewayId = await interaction.prompt({ type: "text", message: "Enter Cloudflare AI Gateway ID" });
+      const { signal } = interaction;
+      const key = await interaction.prompt({ type: "secret", message: "Enter Cloudflare AI Gateway token", signal });
+      const accountId = await interaction.prompt({ type: "text", message: "Enter Cloudflare account ID", signal });
+      const gatewayId = await interaction.prompt({ type: "text", message: "Enter Cloudflare AI Gateway ID", signal });
       return {
         type: "api_key",
         key: key.trim(),

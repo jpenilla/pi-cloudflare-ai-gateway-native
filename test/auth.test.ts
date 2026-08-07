@@ -16,6 +16,7 @@ describe("Cloudflare gateway authentication", () => {
   it("stores token and route identifiers through the native login flow", async () => {
     const answers = ["secret-token", "account", "gateway"];
     const credential = await cloudflareGatewayNativeAuth().login!({
+      signal: new AbortController().signal,
       prompt: vi.fn(async () => answers.shift()!),
       notify: vi.fn(),
     });
@@ -34,6 +35,7 @@ describe("Cloudflare gateway authentication", () => {
         CLOUDFLARE_ACCOUNT_ID: "account",
         CLOUDFLARE_GATEWAY_ID: "gateway",
       }),
+      signal: new AbortController().signal,
     });
 
     expect(result?.auth.apiKey).toBe("gateway-token");

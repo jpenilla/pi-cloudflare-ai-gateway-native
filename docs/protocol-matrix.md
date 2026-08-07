@@ -4,7 +4,7 @@ Sanitized results from representative live requests and local boundary tests. Th
 
 ## Test conditions
 
-- Pi: 0.81.1
+- Pi: 0.84.x
 - Last validation pass: July 22, 2026
 - AI Gateway authentication: enabled
 - Third-party billing mode: Unified Billing

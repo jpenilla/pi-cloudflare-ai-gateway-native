@@ -16,7 +16,7 @@ The focused candidates for Cloudflare review are the xAI provider-native eligibi
 - Unified Billing credits available: yes
 - Provider keys in requests: none
 - Prompts: minimal non-sensitive text or one local `read` tool control
-- Client: Pi 0.81.1 extension plus direct diagnostic HTTP requests
+- Client: Pi 0.84.x extension plus direct diagnostic HTTP requests
 - Validation date: July 22, 2026
 
 No account IDs, gateway IDs, credentials, prompt bodies, raw response IDs, encrypted reasoning, private paths, or full Gateway exports are included.
