@@ -6,6 +6,8 @@ This document records reproducible behavior observed while building a Pi extensi
 
 Model eligibility and schema behavior differ across Cloudflare's documented provider-native, account REST, and `/ai/run` surfaces. The evidence does not indicate malformed Cloudflare authentication: the same account-scoped token succeeds with control models and through other surfaces.
 
+The reporting client is a **Unified Billing-only** Pi extension: it authenticates with a single Cloudflare token and never forwards provider credentials. BYOK-only surfaces (such as DeepSeek's provider-native `/deepseek` route) are therefore out of scope for it rather than defects, and the findings below focus on the Unified Billing transport contract.
+
 The main request is a documented transport-selection contract for Unified Billing. Clients need to know which surface preserves the provider's request/response semantics most faithfully, how to select another surface deterministically when that route is unavailable, and how to discover model-by-surface eligibility without paid trial requests.
 
 The focused candidates for Cloudflare review are the xAI provider-native eligibility mismatch, xAI REST Responses schema behavior, and Google catalog/surface availability. The DeepSeek and Google API-version observations primarily clarify transport selection rather than establish defects.

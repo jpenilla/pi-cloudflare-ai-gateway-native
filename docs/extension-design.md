@@ -4,7 +4,9 @@ This document describes the experimental `cloudflare-ai-gateway-native` Pi exten
 
 ## Purpose
 
-The extension tests whether Pi can route models through Cloudflare AI Gateway while retaining the Pi source provider's wire format, model metadata, tool behavior, and reasoning replay. It uses deterministic per-model transports: a failed request is returned to the user and is never retried through another Cloudflare surface.
+The extension's purpose is **full native-format coverage of Cloudflare AI Gateway's Unified Billing catalog within Pi**: every Unified Billing-eligible model that maps to a Pi built-in provider is projected and routed with the Pi source provider's wire format, model metadata, tool behavior, and reasoning replay. It uses deterministic per-model transports: a failed request is returned to the user and is never retried through another Cloudflare surface.
+
+Billing is **Unified Billing only**: one Cloudflare token is both the authentication and the billing principal, and upstream provider credentials are never accepted or forwarded, so BYOK-only surfaces are excluded by design. The sole carve-out is first-party `@cf/*` Workers AI models, which bill through Workers AI instead.
 
 ## Provider and catalog
 
@@ -19,21 +21,21 @@ Catalog entries are route candidates. Cloudflare account/model eligibility is no
 
 ## Deterministic routes
 
-| Pi source provider | Cloudflare host and path | Request API | Request model ID |
-| --- | --- | --- | --- |
-| `openai` | `gateway.ai.cloudflare.com/.../openai` | OpenAI Responses | unchanged |
-| `anthropic` | `gateway.ai.cloudflare.com/.../anthropic` | Anthropic Messages | unchanged |
-| `google` | `gateway.ai.cloudflare.com/.../google-ai-studio/v1beta` | Google Generative AI | unchanged |
-| `deepseek` | `api.cloudflare.com/.../ai/v1/chat/completions` | OpenAI Chat Completions | `deepseek/<source-id>` |
-| `xai` Chat models | `gateway.ai.cloudflare.com/.../grok/v1/chat/completions` | OpenAI Chat Completions | unchanged |
-| `xai` Responses models | `gateway.ai.cloudflare.com/.../grok/v1/responses` | OpenAI Responses | unchanged |
-| `cloudflare-workers-ai` | `api.cloudflare.com/.../ai/v1/chat/completions` | OpenAI Chat Completions | unchanged `@cf/...` |
+| Pi source provider | Cloudflare host and path | Request API | Request model ID | Billing |
+| --- | --- | --- | --- | --- |
+| `openai` | `gateway.ai.cloudflare.com/.../openai` | OpenAI Responses | unchanged | Unified Billing |
+| `anthropic` | `gateway.ai.cloudflare.com/.../anthropic` | Anthropic Messages | unchanged | Unified Billing |
+| `google` | `gateway.ai.cloudflare.com/.../google-ai-studio/v1beta` | Google Generative AI | unchanged | Unified Billing |
+| `deepseek` | `api.cloudflare.com/.../ai/v1/chat/completions` | OpenAI Chat Completions | `deepseek/<source-id>` | Unified Billing |
+| `xai` Chat models | `gateway.ai.cloudflare.com/.../grok/v1/chat/completions` | OpenAI Chat Completions | unchanged | Unified Billing |
+| `xai` Responses models | `gateway.ai.cloudflare.com/.../grok/v1/responses` | OpenAI Responses | unchanged | Unified Billing |
+| `cloudflare-workers-ai` | `api.cloudflare.com/.../ai/v1/chat/completions` | OpenAI Chat Completions | unchanged `@cf/...` | Workers AI |
 
 There is no `/compat`, `/ai/run`, transport retry, REST fallback, model discovery request, or legacy provider alias.
 
 ## Authentication boundary
 
-One Cloudflare API token, account ID, and gateway ID are stored in Pi's native credential store.
+One Cloudflare API token, account ID, and gateway ID are stored in Pi's native credential store. This is the Unified Billing authentication model: the Cloudflare token is the billing principal, and no upstream provider credential is accepted or forwarded.
 
 Authentication is selected only after the destination host is fixed:
 
@@ -63,7 +65,7 @@ A future Pi cleanup could express custom header-only Google authentication direc
 
 ## Validation and cost discipline
 
-Live tests use one representative inexpensive model and minimal prompt per behavior. A successful tool test doubles as the multi-turn/replay test. Models are not swept after the transport policy is established. See `protocol-matrix.md` for sanitized results.
+Live tests use one representative inexpensive model and minimal prompt per behavior. A successful tool test doubles as the multi-turn/replay test. Models are not swept after the transport policy is established—full catalog coverage is the goal, and every projected model remains a route candidate pending Cloudflare's model-by-surface eligibility. See `protocol-matrix.md` for sanitized results.
 
 ## Commands
 

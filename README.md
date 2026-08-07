@@ -1,12 +1,13 @@
 # Pi Cloudflare AI Gateway Native
 
-An experimental [Pi](https://github.com/earendil-works/pi) extension for exploring Cloudflare AI Gateway with the upstream provider wire formats that Pi already understands.
+An experimental [Pi](https://github.com/earendil-works/pi) extension whose purpose is **full native-format coverage of Cloudflare AI Gateway's Unified Billing catalog**: every Unified Billing-eligible model that maps to a Pi built-in provider is projected into Pi and routed through Cloudflare's provider-native or account REST endpoints using the wire format Pi already speaks.
 
 > [!IMPORTANT]
-> This is a personal research prototype and potential Pi upstream proof of concept—not a production-supported provider. Cloudflare model eligibility varies by account and invocation surface.
+> **Unified Billing only.** One Cloudflare token is both the authentication and the billing principal; upstream provider credentials are never accepted or forwarded. BYOK-only surfaces (DeepSeek's provider-native route, Google Vertex, …) are out of scope by design, and first-party `@cf/*` Workers AI models bill through Workers AI rather than Unified Billing. This is a personal research prototype and potential Pi upstream proof of concept—not a production-supported provider. Cloudflare model eligibility varies by account and invocation surface.
 
 ## What it explores
 
+- Covering the full Unified Billing catalog as much as Pi's built-in providers support, instead of hand-picking models.
 - Reusing Pi's native OpenAI Responses, Anthropic Messages, Google Generative AI, and OpenAI Chat Completions streams.
 - Projecting Pi model metadata instead of maintaining a second capability catalog.
 - Host-scoped Cloudflare authentication without forwarding upstream-provider credentials.
@@ -17,16 +18,16 @@ The extension registers a separate `cloudflare-ai-gateway-native` provider and d
 
 ## Routes
 
-| Pi source | Cloudflare transport | Pi wire format | Representative live validation |
-| --- | --- | --- | --- |
-| OpenAI | provider-native `/openai` | Responses | text, tools, reasoning replay, usage |
-| Anthropic | provider-native `/anthropic` | Messages | text, tools, thinking replay, usage |
-| Google AI Studio | provider-native `/google-ai-studio/v1beta` | Google Generative AI | text and tool-result replay |
-| DeepSeek | account REST Chat | Chat Completions | text, reasoning, tool-result replay |
-| xAI | provider-native `/grok/v1` | Chat Completions or Responses | `grok-4.3` text and tools |
-| Workers AI | account REST Chat | Chat Completions | text and tools; Workers AI billing |
+| Pi source | Cloudflare transport | Pi wire format | Billing | Representative live validation |
+| --- | --- | --- | --- | --- |
+| OpenAI | provider-native `/openai` | Responses | Unified Billing | text, tools, reasoning replay, usage |
+| Anthropic | provider-native `/anthropic` | Messages | Unified Billing | text, tools, thinking replay, usage |
+| Google AI Studio | provider-native `/google-ai-studio/v1beta` | Google Generative AI | Unified Billing | text and tool-result replay |
+| DeepSeek | account REST Chat | Chat Completions | Unified Billing | text, reasoning, tool-result replay |
+| xAI | provider-native `/grok/v1` | Chat Completions or Responses | Unified Billing | `grok-4.3` text and tools |
+| Workers AI | account REST Chat | Chat Completions | Workers AI | text and tools |
 
-Projected models are **route candidates**, not availability guarantees. Cloudflare currently exposes no account-specific model-by-surface discovery contract, and some catalog models behave differently across provider-native endpoints, account REST schemas, and `/ai/run`. See the [sanitized Cloudflare findings](./docs/cloudflare-findings.md).
+Projected models are **route candidates**, not availability guarantees: the target is full catalog coverage, but Cloudflare currently exposes no account-specific model-by-surface discovery contract, and some catalog models behave differently across provider-native endpoints, account REST schemas, and `/ai/run`. See the [sanitized Cloudflare findings](./docs/cloudflare-findings.md).
 
 ## Install and run
 
@@ -53,7 +54,7 @@ export CLOUDFLARE_ACCOUNT_ID=...
 export CLOUDFLARE_GATEWAY_ID=...
 ```
 
-The token must have the Cloudflare permissions required by the selected AI Gateway surface.
+The token must have the Cloudflare permissions required by the selected AI Gateway surface (Unified Billing run access for third-party models).
 
 Authentication is host-scoped:
 
@@ -65,6 +66,7 @@ Google requires a small SDK boundary workaround: Pi initializes `@google/genai` 
 
 ## Design constraints
 
+- Unified Billing authentication and billing only; no BYOK provider-key forwarding, so provider-key-required surfaces are excluded rather than hacked around.
 - One deterministic transport per projected model.
 - No automatic fallback, `/compat`, or implemented `/ai/run` adapter.
 - No copied provider implementations, unsupported internal imports, or global `fetch` patches.

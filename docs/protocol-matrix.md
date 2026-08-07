@@ -9,6 +9,7 @@ Sanitized results from representative live requests and local boundary tests. Th
 - AI Gateway authentication: enabled
 - Third-party billing mode: Unified Billing
 - Provider API keys sent by the extension: none
+- BYOK surfaces (provider-key forwarding): excluded by design
 - Prompts: minimal non-sensitive text and a local `read` tool control
 
 No account identifiers, gateway identifiers, credentials, request/response IDs, private paths, raw payloads, or encrypted reasoning values are retained here.
